@@ -51,8 +51,10 @@ namespace QuantConnect.Brokerages.Bitbank
                     Config.Get("data-aggregator", "QuantConnect.Lean.Engine.DataFeeds.AggregationManager"), false);
 
             Initialize(
-                job.BrokerageData.TryGetValue("bitbank-api-key", out var apiKey) ? apiKey : Config.Get("bitbank-api-key"),
-                job.BrokerageData.TryGetValue("bitbank-api-secret", out var apiSecret) ? apiSecret : Config.Get("bitbank-api-secret"),
+                job.BrokerageData.TryGetValue("bitbank-api-key", out var apiKey) && !string.IsNullOrEmpty(apiKey)
+                    ? apiKey : BitbankBrokerageFactory.GetCredential("bitbank-api-key", "BITBANK_API_KEY"),
+                job.BrokerageData.TryGetValue("bitbank-api-secret", out var apiSecret) && !string.IsNullOrEmpty(apiSecret)
+                    ? apiSecret : BitbankBrokerageFactory.GetCredential("bitbank-api-secret", "BITBANK_API_SECRET"),
                 job.BrokerageData.TryGetValue("bitbank-rest-url", out var restUrl) ? restUrl : Config.Get("bitbank-rest-url", "https://api.bitbank.cc"),
                 job.BrokerageData.TryGetValue("bitbank-public-url", out var publicUrl) ? publicUrl : Config.Get("bitbank-public-url", "https://public.bitbank.cc"),
                 job.BrokerageData.TryGetValue("bitbank-websocket-url", out var wsUrl) ? wsUrl : Config.Get("bitbank-websocket-url", "wss://stream.bitbank.cc"),

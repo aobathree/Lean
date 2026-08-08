@@ -37,16 +37,32 @@ namespace QuantConnect.Brokerages.Bitbank
         }
 
         /// <summary>
-        /// Gets the brokerage data required to run the brokerage from configuration
+        /// Gets the brokerage data required to run the brokerage from configuration.
+        /// Credentials fall back to the BITBANK_API_KEY / BITBANK_API_SECRET environment
+        /// variables when the config keys are empty, so secrets can be injected at runtime
+        /// (1Password CLI locally, AWS SSM Parameter Store in AWS) without touching config.json.
         /// </summary>
         public override Dictionary<string, string> BrokerageData => new()
         {
-            { "bitbank-api-key", Config.Get("bitbank-api-key") },
-            { "bitbank-api-secret", Config.Get("bitbank-api-secret") },
+            { "bitbank-api-key", GetCredential("bitbank-api-key", "BITBANK_API_KEY") },
+            { "bitbank-api-secret", GetCredential("bitbank-api-secret", "BITBANK_API_SECRET") },
             { "bitbank-rest-url", Config.Get("bitbank-rest-url", "https://api.bitbank.cc") },
             { "bitbank-public-url", Config.Get("bitbank-public-url", "https://public.bitbank.cc") },
             { "bitbank-websocket-url", Config.Get("bitbank-websocket-url", "wss://stream.bitbank.cc") }
         };
+
+        /// <summary>
+        /// Reads a credential from configuration, falling back to an environment variable
+        /// </summary>
+        public static string GetCredential(string configKey, string environmentVariable)
+        {
+            var value = Config.Get(configKey);
+            if (string.IsNullOrEmpty(value))
+            {
+                value = Environment.GetEnvironmentVariable(environmentVariable) ?? string.Empty;
+            }
+            return value;
+        }
 
         /// <summary>
         /// Gets the brokerage model

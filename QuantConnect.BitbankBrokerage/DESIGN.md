@@ -10,7 +10,7 @@
 > - `AssetsCheck`: 認証・署名・残高取得 OK(JPY + 5 資産)
 > - `StreamCheck`: PubNub プライベートストリーム 60 秒接続維持 OK
 > - `OrderSmokeTest`: 最小ロット(BTC 0.0001)の発注 → `spot_order_new` 受信 → 取消 → `CANCELED_UNFILLED` 受信 → REST 最終確認まで**全段階合格**(order_id 59592963728)。取消イベントが REST 応答より先に到着するレースを実環境で観測し、`BrokerageConcurrentMessageHandler` の必要性を裏付け
-> - **Lean 本体 E2E 合格**(2026-08-08、`BitbankE2ETestAlgorithm` @ live-bitbank 環境): OnData 受信(92 ティック)→ アルゴリズム API 発注(BrokerId 59593138216)→ 90 秒後取消 → ストリーム経由 Canceled 確認 → 自動終了まで全段階成功。初回実行でデータ到達が 7.5 分遅延する不具合を検出 → 原因は購読管理のチャネル共有により Quote(depth)room join がスキップされていたバグで、tick type ごとのチャネル名に修正済み(コミット 311b48376、ハーネスで数秒以内の Quote バー到達を検証)
+> - **Lean 本体 E2E 合格**(2026-08-08、`BitbankE2ETestAlgorithm` @ live-bitbank 環境): OnData 受信(92 ティック)→ アルゴリズム API 発注(BrokerId 59593138216)→ 90 秒後取消 → ストリーム経由 Canceled 確認 → 自動終了まで全段階成功。初回実行でデータ到達が 7.5 分遅延する不具合を検出 → 原因は購読管理のチャネル共有により Quote(depth)room join がスキップされていたバグで、tick type ごとのチャネル名に修正済み(コミット 311b48376)。**修正後の 2 回目 E2E で効果を実証**: 購読から約 1 秒で OnData 到達(depth_whole 即時受信)、テスト全体が約 95 秒で自動完走(BrokerId 59593289172)。transactions チャネルの初回受信は購読の約 50 秒後で、「約定はまばら・板は常時更新」という Quote 併用設計の妥当性も実地で確認
 > - 残り: 24h 安定稼働試験(P5)のみ
 >
 > **設計変更(v1.2)**: コネクタープロジェクトは開発効率のため Lean フォーク内(`Lean/QuantConnect.BitbankBrokerage/`)に配置した(Launcher から ProjectReference、ビルドで DLL が出力ディレクトリに自動配置される)。将来 upstream に PR する場合や独立配布する場合は、そのまま別リポジトリ + NuGet パッケージに切り出せる構成。また、Socket.IO は外部 SDK ではなく Engine.IO v4 プロトコルの必要最小サブセットを `WebSocketClientWrapper` 上に直接実装し(`BitbankSocketIoClient`)、PubNub も SDK ではなく subscribe v2 ワイヤプロトコル(HTTP ロングポーリング)で実装した(`BitbankPrivateStreamClient`)。依存パッケージゼロで、再接続・トークンリフレッシュを自前制御できる。

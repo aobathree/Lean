@@ -302,6 +302,9 @@ namespace QuantConnect.Brokerages
                 case BrokerageName.BloombergFix:
                     return new BloombergFixBrokerageModel(accountType);
 
+                case BrokerageName.Bitbank:
+                    return new BitbankBrokerageModel(accountType);
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(brokerage), brokerage, null);
             }
@@ -413,6 +416,9 @@ namespace QuantConnect.Brokerages
 
                 case BloombergFixBrokerageModel _:
                     return BrokerageName.BloombergFix;
+
+                case BitbankBrokerageModel _:
+                    return BrokerageName.Bitbank;
 
                 case DefaultBrokerageModel _:
                     return BrokerageName.Default;

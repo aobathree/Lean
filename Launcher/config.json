@@ -138,6 +138,14 @@
   "coinbase-api-key": "",
   "coinbase-api-secret": "",
 
+  // bitbank configuration
+  // keys are injected at startup from 1Password (local) or AWS SSM Parameter Store (AWS); never commit values
+  "bitbank-rest-url": "https://api.bitbank.cc",
+  "bitbank-public-url": "https://public.bitbank.cc",
+  "bitbank-websocket-url": "wss://stream.bitbank.cc",
+  "bitbank-api-key": "",
+  "bitbank-api-secret": "",
+
   // bitfinex configuration
   "bitfinex-api-secret": "",
   "bitfinex-api-key": "",
@@ -508,6 +516,20 @@
       // real brokerage implementations require the BrokerageTransactionHandler
       "live-mode-brokerage": "CoinbaseBrokerage",
       "data-queue-handler": [ "CoinbaseBrokerage" ],
+      "setup-handler": "QuantConnect.Lean.Engine.Setup.BrokerageSetupHandler",
+      "result-handler": "QuantConnect.Lean.Engine.Results.LiveTradingResultHandler",
+      "data-feed-handler": "QuantConnect.Lean.Engine.DataFeeds.LiveTradingDataFeed",
+      "real-time-handler": "QuantConnect.Lean.Engine.RealTime.LiveTradingRealTimeHandler",
+      "transaction-handler": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler",
+      "history-provider": [ "BrokerageHistoryProvider", "SubscriptionDataReaderHistoryProvider" ]
+    },
+
+    "live-bitbank": {
+      "live-mode": true,
+
+      // real brokerage implementations require the BrokerageTransactionHandler
+      "live-mode-brokerage": "BitbankBrokerage",
+      "data-queue-handler": [ "BitbankBrokerage" ],
       "setup-handler": "QuantConnect.Lean.Engine.Setup.BrokerageSetupHandler",
       "result-handler": "QuantConnect.Lean.Engine.Results.LiveTradingResultHandler",
       "data-feed-handler": "QuantConnect.Lean.Engine.DataFeeds.LiveTradingDataFeed",

@@ -13,4 +13,8 @@
     <ProjectReference Include="..\Configuration\QuantConnect.Configuration.csproj" />
     <ProjectReference Include="..\Logging\QuantConnect.Logging.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- standalone verification tools live under tools/; keep them out of the connector build -->
+    <Compile Remove="tools/**/*.cs" />
+  </ItemGroup>
 </Project>

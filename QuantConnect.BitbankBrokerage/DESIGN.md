@@ -2,7 +2,7 @@
 
 **Status:** v1.1(2026-08-08)— P2(Lean 本体基盤)実装済み
 **対象 Lean リポジトリ:** `/Users/aobathree/Lean`(fork: `aobathree/Lean`、実装ブランチ: **`jp-broker-bitbank`**)
-**成果物:** `QuantConnect.Brokerages.Bitbank`(本ディレクトリ `~/bitbank/lean-connector` で開発)
+**成果物:** `QuantConnect.Brokerages.Bitbank`(設計文書・検証ツールは本ディレクトリ `QuantConnect.BitbankBrokerage/` に同梱)
 
 > **実装状況**: Lean 側基盤(`Market.Bitbank` = id 44、`BrokerageName.Bitbank`、`BitbankBrokerageModel`、`BitbankFeeModel`、`BitbankOrderProperties`、symbol-properties 44 ペア、market-hours、config.json の `live-bitbank` 環境)と、コネクター本体(`QuantConnect.BitbankBrokerage` プロジェクト: REST + HMAC 認証、PubNub プライベートストリーム、Socket.IO データフィード、板管理、GetHistory、Factory、単体テスト 29 件)を `jp-broker-bitbank` ブランチに実装済み。
 >
@@ -69,7 +69,7 @@ Socket.IO / PubNub とも、Lean の `IWebSocket` インターフェース(9 メ
 ## 3. プロジェクト構成
 
 ```
-lean-connector/
+QuantConnect.BitbankBrokerage/          # ← 現在は Lean フォーク内の本ディレクトリ
 ├── DESIGN.md                              ← 本書
 ├── QuantConnect.BitbankBrokerage/
 │   ├── BitbankBrokerage.cs                # IBrokerage 本体(発注・取消・残高)

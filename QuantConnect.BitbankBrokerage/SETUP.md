@@ -69,16 +69,16 @@ BITBANK_API_SECRET="op://Private/bitbank-api-test/api-secret"
 `op run` が op:// 参照を実行時に解決し、**子プロセスの環境変数としてだけ**注入する(ディスクに書かれない):
 
 ```bash
-cd /Users/aobathree/Lean/Launcher/bin/Debug
-op run --env-file=/Users/aobathree/bitbank/lean-connector/.env.1password -- \
+cd Launcher/bin/Debug   # Lean リポジトリのルートから
+op run --env-file=QuantConnect.BitbankBrokerage/.env.1password -- \
   dotnet QuantConnect.Lean.Launcher.dll --environment live-bitbank
 ```
 
 疎通確認だけしたい場合(残高取得のワンショット):
 
 ```bash
-op run --env-file=/Users/aobathree/bitbank/lean-connector/.env.1password -- \
-  dotnet run --project /Users/aobathree/bitbank/lean-connector/tools/AssetsCheck
+op run --env-file=QuantConnect.BitbankBrokerage/.env.1password -- \
+  dotnet run --project QuantConnect.BitbankBrokerage/tools/AssetsCheck
 ```
 
 ## 3. AWS: SSM パラメータストア
@@ -155,7 +155,7 @@ exec dotnet QuantConnect.Lean.Launcher.dll --environment live-bitbank
 op read "op://Private/bitbank-api-test/api-key" | head -c 8; echo "..."
 
 # 2) 環境変数が子プロセスに渡るか
-op run --env-file=.env.1password -- printenv BITBANK_API_KEY | head -c 8; echo "..."
+op run --env-file=QuantConnect.BitbankBrokerage/.env.1password -- printenv BITBANK_API_KEY | head -c 8; echo "..."
 ```
 
 3) 残高取得(結合テスト第 1 段階)は、キー登録完了後に `/user/assets` のワンショット実行で確認する(§2.4)。
@@ -166,16 +166,16 @@ op run --env-file=.env.1password -- printenv BITBANK_API_KEY | head -c 8; echo "
 
 | ツール | 内容 | リスク |
 |---|---|---|
-| `tools/AssetsCheck` | 残高・アクティブ注文・private stream 認証情報の取得 | なし(参照のみ) |
+| `tools/AssetsCheck`(パスはリポジトリルートから `QuantConnect.BitbankBrokerage/tools/...`) | 残高・アクティブ注文・private stream 認証情報の取得 | なし(参照のみ) |
 | `tools/StreamCheck` | PubNub プライベートストリームを購読し受信メッセージを表示(既定 60 秒) | なし(参照のみ) |
 | `tools/OrderSmokeTest` | **実注文**の最小ロットライフサイクステスト: post_only 指値買い(市場価格の 50%、約定しない)→ ストリームで確認 → 即取消 | 最小(`--yes` 必須、約 500 円相当の指値が数秒間板に載る) |
 
 ```bash
 # ストリーム受信確認(60 秒監視。実行中に bitbank アプリで注文操作をすると spot_order イベントが流れる)
-op run --env-file=.env.1password -- dotnet run --project tools/StreamCheck
+op run --env-file=QuantConnect.BitbankBrokerage/.env.1password -- dotnet run --project QuantConnect.BitbankBrokerage/tools/StreamCheck
 
 # 注文ライフサイクル確認(実注文を伴うため --yes と Enter 確認が必要)
-op run --env-file=.env.1password -- dotnet run --project tools/OrderSmokeTest -- --yes
+op run --env-file=QuantConnect.BitbankBrokerage/.env.1password -- dotnet run --project QuantConnect.BitbankBrokerage/tools/OrderSmokeTest -- --yes
 ```
 
 `OrderSmokeTest` の合格条件: 発注 → `spot_order_new`(UNFILLED)受信 → 取消 → `CANCELED_UNFILLED` 受信 → REST 最終確認、の全段階が通ること。これが green なら Lean 本体(`live-bitbank` 環境)での E2E に進める。
@@ -189,7 +189,7 @@ Lean エンジン全体を通した最終確認。テストアルゴリズム `B
 3. 90 秒後に取消し、エンジン経由で Canceled が確認できたら**自動終了**(タイムアウト 300 秒)
 
 ```bash
-./run-e2e.sh
+./QuantConnect.BitbankBrokerage/run-e2e.sh
 ```
 
 (内部で Launcher をビルドし、`op run` 経由で `--environment live-bitbank --algorithm-type-name BitbankE2ETestAlgorithm` を起動する。実注文を伴うため実行は手動。中断は Ctrl+C、注文が残った場合は bitbank アプリから手動取消できる)

@@ -107,6 +107,7 @@ namespace QuantConnect.Brokerages.Bitbank
 
                 if (tickType == TickType.Trade)
                 {
+                    Log.Trace($"BitbankBrokerage.SubscribeChannels(): joining transactions_{pair}");
                     _socketClient.JoinRoom($"transactions_{pair}");
                 }
                 else
@@ -117,6 +118,7 @@ namespace QuantConnect.Brokerages.Bitbank
                         newManager.OrderBook.BestBidAskUpdated += OnBestBidAskUpdated;
                         return newManager;
                     });
+                    Log.Trace($"BitbankBrokerage.SubscribeChannels(): joining depth_whole_{pair} and depth_diff_{pair}");
                     _socketClient.JoinRoom($"depth_whole_{pair}");
                     _socketClient.JoinRoom($"depth_diff_{pair}");
                 }
@@ -153,10 +155,16 @@ namespace QuantConnect.Brokerages.Bitbank
             return true;
         }
 
+        private readonly ConcurrentDictionary<string, byte> _roomsSeen = new();
+
         private void OnStreamMessage(object sender, (string Room, JToken Data) e)
         {
             try
             {
+                if (_roomsSeen.TryAdd(e.Room, 0))
+                {
+                    Log.Trace($"BitbankBrokerage.OnStreamMessage(): first message received for room {e.Room}");
+                }
                 if (e.Room.StartsWith("transactions_", StringComparison.Ordinal))
                 {
                     HandleTransactions(e.Room.Substring("transactions_".Length), e.Data);

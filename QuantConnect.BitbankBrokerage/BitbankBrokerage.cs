@@ -104,7 +104,9 @@ namespace QuantConnect.Brokerages.Bitbank
                 _privateStreamClient.MessageReceived += (_, message) => _messageHandler.HandleNewMessage(message);
             }
 
-            _subscriptionManager = new EventBasedDataQueueHandlerSubscriptionManager();
+            // distinct channel per tick type: Trade and Quote must each trigger SubscribeImpl
+            // (the default constructor maps every tick type to a single shared channel)
+            _subscriptionManager = new EventBasedDataQueueHandlerSubscriptionManager(tickType => tickType.ToString());
             _subscriptionManager.SubscribeImpl = (symbols, tickType) => SubscribeChannels(symbols, tickType);
             _subscriptionManager.UnsubscribeImpl = (symbols, tickType) => UnsubscribeChannels(symbols, tickType);
 

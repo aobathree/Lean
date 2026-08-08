@@ -114,6 +114,7 @@ namespace QuantConnect.Brokerages.Bitbank.Streaming
 
                     case BitbankSocketIoFrameType.NamespaceConnected:
                         _namespaceConnected = true;
+                        Log.Trace($"BitbankSocketIoClient: namespace connected, re-joining {_rooms.Count} room(s)");
                         // re-join all tracked rooms (initial connect and every reconnect)
                         foreach (var trackedRoom in _rooms.Keys)
                         {

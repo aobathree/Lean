@@ -1,3 +1,6 @@
+> [!WARNING]
+> **このブランチは廃止されました。** bitbank 連携はスタンドアロンプラグイン [Lean.Brokerages.Bitbank](https://github.com/aobathree/Lean.Brokerages.Bitbank) に移行済みです。詳細は [BRANCH-NOTICE.md](BRANCH-NOTICE.md) を参照。
+
 <picture >
   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/f3581da5-1983-4f6c-af5a-55c79b37913a">
   <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/0f8022d5-952d-418c-9011-2644830137d2">

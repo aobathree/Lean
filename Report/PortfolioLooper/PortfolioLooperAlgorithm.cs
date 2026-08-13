@@ -15,7 +15,9 @@
 
 using QuantConnect.Algorithm;
 using QuantConnect.Orders;
+using QuantConnect.Orders.Fees;
 using QuantConnect.Securities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -74,8 +76,39 @@ namespace QuantConnect.Report
                 // Set leverage to 10000 to account for unknown leverage values in user algorithms
                 security.SetLeverage(10000m);
 
+                // Same idea for fees: AlgorithmConfiguration only carries a BrokerageName, so a
+                // custom brokerage model (one that is not in that enum) always comes back as
+                // Default here, whose fee model is InteractiveBrokersFeeModel. That model throws
+                // for markets IB does not trade, and SecurityHolding.UnrealizedProfit prices a
+                // hypothetical close on every portfolio update, so the looper dies on the first
+                // update instead of producing a report. Probe the reconstructed model once and
+                // fall back to zero fees when it cannot price the security - fees on hypothetical
+                // closes are noise in a portfolio reconstruction, and the fees actually charged
+                // are already carried by the order events.
+                if (!CanPriceOrderFees(security))
+                {
+                    security.FeeModel = new ConstantFeeModel(0);
+                }
+
                 var method = typeof(QCAlgorithm).GetMethod("AddToUserDefinedUniverse", BindingFlags.NonPublic | BindingFlags.Instance);
                 method.Invoke(this, new object[] { security, configs });
+            }
+        }
+
+        /// <summary>
+        /// Whether the security's reconstructed fee model can price an order for it
+        /// </summary>
+        private static bool CanPriceOrderFees(Security security)
+        {
+            try
+            {
+                var probe = new MarketOrder(security.Symbol, 1, default(DateTime));
+                security.FeeModel.GetOrderFee(new OrderFeeParameters(security, probe));
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 

@@ -121,7 +121,13 @@ namespace QuantConnect.Report
             {
                 SetAccountCurrency(_algorithmConfiguration.AccountCurrency);
                 SetBrokerageModel(_algorithmConfiguration.Brokerage, _algorithmConfiguration.AccountType);
+                Settings.TradingDaysPerYear = _algorithmConfiguration.TradingDaysPerYear;
             }
+
+            // The setup handlers normally fill this in, and GenerateStatisticsResults
+            // dereferences it unconditionally, but this fake algorithm never runs through one.
+            // 252 matches the fallback AlgorithmConfiguration itself uses.
+            Settings.TradingDaysPerYear ??= 252;
 
             SetCash(_startingCash);
 

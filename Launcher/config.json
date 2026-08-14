@@ -361,7 +361,24 @@
   // Additional paths to include in python for import resolution
   "python-additional-paths": [],
 
+  // kabu STATION brokerage defaults (jp-lean-patches)
+  "kabu-station-fund-type": "AA",
+  "kabu-station-account-type": "margin",
+
   "environments": {
+
+    // defines the 'live-kabustation' environment (jp-lean-patches)
+    "live-kabustation": {
+      "live-mode": true,
+      "live-mode-brokerage": "KabuStationBrokerage",
+      "data-queue-handler": [ "KabuStationBrokerage" ],
+      "setup-handler": "QuantConnect.Lean.Engine.Setup.BrokerageSetupHandler",
+      "result-handler": "QuantConnect.Lean.Engine.Results.LiveTradingResultHandler",
+      "data-feed-handler": "QuantConnect.Lean.Engine.DataFeeds.LiveTradingDataFeed",
+      "real-time-handler": "QuantConnect.Lean.Engine.RealTime.LiveTradingRealTimeHandler",
+      "transaction-handler": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler",
+      "history-provider": [ "SubscriptionDataReaderHistoryProvider" ]
+    },
 
     // defines the 'backtesting' environment
     "backtesting": {
